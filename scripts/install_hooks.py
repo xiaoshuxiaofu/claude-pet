@@ -37,6 +37,26 @@ def save_json(path: str, data: dict):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
+def configure_statusline(settings: dict, skill_dir: str) -> bool:
+    """Add statusLine config to settings.json to feed context usage to the pet.
+
+    Returns True if settings were modified.
+    """
+    statusline_script = os.path.join(skill_dir, "scripts", "pet_statusline.py")
+    statusline_cmd = f"python \"{statusline_script}\""
+
+    existing = settings.get("statusLine", {})
+    if existing.get("type") == "command" and existing.get("command") == statusline_cmd:
+        return False
+
+    settings["statusLine"] = {
+        "type": "command",
+        "command": statusline_cmd,
+    }
+    print(f"[install] Configured statusLine: {statusline_cmd}")
+    return True
+
+
 def get_skill_dir(args) -> str:
     """Determine skill directory."""
     if args.skill_dir:
@@ -111,11 +131,19 @@ def install(args):
 
     if changed:
         settings["hooks"] = settings_hooks
+
+    # Also configure statusLine (separate from hooks, required for context bar)
+    sl_changed = configure_statusline(settings, skill_dir)
+    changed = changed or sl_changed
+
+    if changed:
         save_json(SETTINGS_FILE, settings)
         print(f"[install] Hooks saved to {SETTINGS_FILE}")
+        if sl_changed:
+            print("[install] StatusLine configured — context bar will update automatically.")
         print("[install] Please restart Claude Code or reload hooks for changes to take effect.")
     else:
-        print("[install] All hooks already installed, no changes needed.")
+        print("[install] All hooks and statusLine already installed, no changes needed.")
 
     return True
 
@@ -150,6 +178,14 @@ def uninstall(args):
 
     if changed:
         settings["hooks"] = settings_hooks
+
+    # Also remove statusLine if it points to pet_statusline.py
+    sl = settings.get("statusLine", {})
+    if isinstance(sl, dict) and _HOOK_MARKER in sl.get("command", ""):
+        del settings["statusLine"]
+        changed = True
+
+    if changed:
         save_json(SETTINGS_FILE, settings)
         print(f"[uninstall] Hooks removed from {SETTINGS_FILE}")
     else:

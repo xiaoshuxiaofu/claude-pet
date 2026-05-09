@@ -452,6 +452,7 @@ class DesktopPet:
         self.bubble.hide()
         self._hide_buttons()
         self._write_state_file("idle", "")
+        self._start_wander()
 
     def _on_agree_click(self):
         """Agree button: focus Claude Code so user can manually approve."""

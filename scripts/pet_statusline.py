@@ -25,7 +25,8 @@ def main():
         # current_usage is a dict: {input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens}
         usage = cw.get("current_usage", 0)
         if isinstance(usage, dict):
-            used = sum(v for v in usage.values())
+            # 排除 output_tokens，它不占用上下文窗口
+            used = sum(v for k, v in usage.items() if k != "output_tokens")
         else:
             used = int(usage) if usage else 0
 
