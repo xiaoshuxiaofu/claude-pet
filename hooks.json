@@ -1,0 +1,72 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/Users/Admin/.claude/skills/claude-pet/scripts/pet_bridge.py\" thinking \"正在思考...\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/Users/Admin/.claude/skills/claude-pet/scripts/pet_bridge.py\" thinking \"正在思考...\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/Users/Admin/.claude/skills/claude-pet/scripts/pet_bridge.py\" running \"工作中...\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/Users/Admin/.claude/skills/claude-pet/scripts/pet_bridge.py\" agree \"需要确认操作\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/Users/Admin/.claude/skills/claude-pet/scripts/pet_bridge.py\" waving \"完成！\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:/Users/Admin/.claude/skills/claude-pet/scripts/pet_bridge.py\" idle",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
