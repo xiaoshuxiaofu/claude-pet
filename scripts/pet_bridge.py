@@ -10,27 +10,49 @@ Usage:
 import os
 import sys
 import json
+import ctypes
 import urllib.request
 
 DAEMON_URL = "http://127.0.0.1:19876"
 CONFIG_FILE = os.path.join(os.path.expanduser("~"), ".claude", "pet_config.json")
 
 
-def _update_context(used: int, total: int):
-    """Write context usage to pet_config.json so the pet bar picks it up."""
+def _find_claude_window():
+    """找到 Claude Code 终端窗口。用 GetForegroundWindow——hook 触发时用户正在终端操作。"""
+    try:
+        hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+        if hwnd:
+            return hwnd
+        hwnd = ctypes.windll.user32.GetForegroundWindow()
+        if hwnd:
+            return hwnd
+    except Exception:
+        pass
+    return None
+
+
+def _save_console_hwnd(config: dict) -> dict:
+    # 只在首次写入或值变化时更新（UserPromptSubmit 时前景窗口最可靠）
+    hwnd = _find_claude_window()
+    if hwnd and hwnd != config.get("console_hwnd", 0):
+        config["console_hwnd"] = hwnd
+    return config
+
+
+def _update_config(updates: dict):
+    """Merge updates into pet_config.json."""
     try:
         config = {}
         if os.path.exists(CONFIG_FILE):
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 config = json.load(f)
-        config["context_used"] = used
-        config["context_total"] = total
+        config.update(updates)
+        config = _save_console_hwnd(config)
         os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
-        print(f"context: {used}/{total}")
-    except OSError as e:
-        print(f"Failed to update context: {e}", file=sys.stderr)
+    except OSError:
+        pass
 
 
 def main():
@@ -51,8 +73,12 @@ def main():
     if action == "context":
         used = int(sys.argv[2]) if len(sys.argv) > 2 else 0
         total = int(sys.argv[3]) if len(sys.argv) > 3 else 0
-        _update_context(used, total)
+        _update_config({"context_used": used, "context_total": total})
+        print(f"context: {used}/{total}")
         return
+
+    # 每次状态更新时同步保存控制台窗口句柄
+    _update_config({})
 
     data = json.dumps({"state": action, "message": msg}).encode("utf-8")
     req = urllib.request.Request(

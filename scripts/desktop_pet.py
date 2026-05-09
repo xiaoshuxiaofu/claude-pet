@@ -69,52 +69,57 @@ def _save_config(config: dict):
         pass
 
 
-# Capture foreground window at startup (before pet window steals focus)
-_SAVED_HWND = None
-try:
-    _SAVED_HWND = ctypes.windll.user32.GetForegroundWindow()
-except Exception:
-    pass
+def _find_console_hwnd():
+    """查找 Claude Code 所在的终端窗口（按窗口类名搜索）。"""
+    for cls in ("CASCADIA_HOSTING_WINDOW_CLASS", "ConsoleWindowClass"):
+        hwnd = _find_window_by_class(cls)
+        if hwnd:
+            return hwnd
+    return None
+
+
+def _find_window_by_class(class_name: str) -> int | None:
+    """枚举可见顶层窗口，返回第一个匹配类名的窗口句柄。"""
+    result = []
+
+    @ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+    def enum_cb(hwnd, _):
+        if not ctypes.windll.user32.IsWindowVisible(hwnd):
+            return True
+        cls = ctypes.create_unicode_buffer(256)
+        ctypes.windll.user32.GetClassNameW(hwnd, cls, 256)
+        if cls.value == class_name:
+            result.append(hwnd)
+        return True
+
+    ctypes.windll.user32.EnumWindows(enum_cb, 0)
+    return result[0] if result else None
 
 
 def _focus_app_window():
     """Bring the Claude Code terminal window to foreground (Windows only)."""
+    hwnd = _find_console_hwnd()
+    if not hwnd:
+        return
+
     try:
-        if _SAVED_HWND:
-            # Preserve maximized/minimized state
-            if ctypes.windll.user32.IsIconic(_SAVED_HWND):
-                ctypes.windll.user32.ShowWindow(_SAVED_HWND, 9)  # SW_RESTORE
-            elif ctypes.windll.user32.IsZoomed(_SAVED_HWND):
-                ctypes.windll.user32.ShowWindow(_SAVED_HWND, 3)  # SW_SHOWMAXIMIZED
-            # else: window is normal, don't resize — just focus
-            ctypes.windll.user32.SetForegroundWindow(_SAVED_HWND)
-            return
-    except Exception:
-        pass
+        fg = ctypes.windll.user32.GetForegroundWindow()
+        if fg and fg != hwnd:
+            cur_tid = ctypes.windll.kernel32.GetCurrentThreadId()
+            fg_tid = ctypes.windll.user32.GetWindowThreadProcessId(fg, None)
+            ctypes.windll.user32.AttachThreadInput(cur_tid, fg_tid, True)
+            ctypes.windll.user32.AllowSetForegroundWindow(-1)  # ASFW_ANY
 
-    # Fallback: search for a window containing "Claude" in the title
-    try:
-        titles = []
+        if ctypes.windll.user32.IsIconic(hwnd):
+            ctypes.windll.user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+        elif ctypes.windll.user32.IsZoomed(hwnd):
+            ctypes.windll.user32.ShowWindow(hwnd, 3)  # SW_SHOWMAXIMIZED
 
-        @ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
-        def enum_callback(hwnd_enum, _):
-            length = ctypes.windll.user32.GetWindowTextLengthW(hwnd_enum)
-            if length <= 0:
-                return True
-            buf = ctypes.create_unicode_buffer(length + 1)
-            ctypes.windll.user32.GetWindowTextW(hwnd_enum, buf, length + 1)
-            if "Claude" in buf.value or "claude" in buf.value:
-                titles.append(hwnd_enum)
-            return True
+        ctypes.windll.user32.BringWindowToTop(hwnd)
+        ctypes.windll.user32.SetForegroundWindow(hwnd)
 
-        ctypes.windll.user32.EnumWindows(enum_callback, 0)
-        if titles:
-            hwnd = titles[0]
-            if ctypes.windll.user32.IsIconic(hwnd):
-                ctypes.windll.user32.ShowWindow(hwnd, 9)
-            elif ctypes.windll.user32.IsZoomed(hwnd):
-                ctypes.windll.user32.ShowWindow(hwnd, 3)
-            ctypes.windll.user32.SetForegroundWindow(hwnd)
+        if fg and fg != hwnd:
+            ctypes.windll.user32.AttachThreadInput(cur_tid, fg_tid, False)
     except Exception:
         pass
 
