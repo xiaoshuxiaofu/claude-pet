@@ -46,7 +46,7 @@ Chat states from hooks map to animation states via `STATE_ALIASES` in `pet_const
 
 ## Path conventions
 
-The skill lives at `~/.claude/skills/claude-pet/`. The SKILL.md references `~/.workbuddy/skills/workbuddy-pet/` — this is stale; the actual install path is under `~/.claude/skills/claude-pet/`. When updating hooks or config, use `~/.claude/` paths.
+The skill lives at `~/.claude/skills/claude-pet/`. State files live under `~/.claude/`.
 
 ## Commands
 

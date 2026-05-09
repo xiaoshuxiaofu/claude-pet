@@ -2,7 +2,7 @@
 pet_launch.py - Smart launcher that starts daemon + pet if not already running.
 Designed to be called from SessionStart hook.
 
-On first launch, automatically installs hooks into ~/.workbuddy/settings.json.
+On first launch, automatically installs hooks into ~/.claude/settings.json.
 Reads active pet from pet_config.json to remember last selection.
 """
 import os

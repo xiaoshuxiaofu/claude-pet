@@ -2,7 +2,7 @@
 pet_daemon.py - Background bridge daemon for desktop pet state management.
 
 Runs a lightweight HTTP server that receives state commands from hooks/manual use.
-State changes are written to ~/.workbuddy/pet_state.json, which the desktop pet
+State changes are written to ~/.claude/pet_state.json, which the desktop pet
 polls every 500ms. State persists until explicitly changed (no auto-revert).
 
 Endpoints:

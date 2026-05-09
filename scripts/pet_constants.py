@@ -1,5 +1,5 @@
 """
-pet_constants.py - Shared constants for the WorkBuddy pet system.
+pet_constants.py - Shared constants for the Claude Code pet system.
 """
 import os
 

@@ -1,17 +1,17 @@
 ---
-name: workbuddy-pet
-description: WorkBuddy 桌面宠物生成与播放器。当用户想要创建、自定义或启动桌面宠物伙伴时使用。触发词包括"/pet""孵化宠物""启动桌面宠物""创建宠物""看看宠物"等。支持聊天感知模式，通过 hooks 自动同步 agent 状态。
+name: claude-pet
+description: Claude Code 桌面宠物生成与播放器。当用户想要创建、自定义或启动桌面宠物伙伴时使用。触发词包括"/pet""孵化宠物""启动桌面宠物""创建宠物""看看宠物"等。支持聊天感知模式，通过 hooks 自动同步 agent 状态。
 agent_created: true
 ---
 
-# WorkBuddy Pet
+# Claude Code Pet
 
 ## /pet 命令
 
 当用户输入 `/pet` 时，**立即执行以下命令启动宠物**（无需询问）：
 
 ```bash
-python ~/.workbuddy/skills/workbuddy-pet/scripts/pet_launch.py
+python ~/.claude/skills/claude-pet/scripts/pet_launch.py
 ```
 
 如果宠物已经在运行，先检查 daemon 状态再决定。
@@ -28,7 +28,7 @@ python ~/.workbuddy/skills/workbuddy-pet/scripts/pet_launch.py
 python <SKILL_DIR>/scripts/pet_launch.py
 ```
 
-首次运行会自动将 hooks 注入到 `~/.workbuddy/settings.json`，后续重启 WorkBuddy 即可通过 hooks 自动触发。
+首次运行会自动将 hooks 注入到 `~/.claude/settings.json`，后续重启 Claude Code 即可通过 hooks 自动触发。
 
 ### 方式二：手动安装 hooks
 
@@ -40,7 +40,7 @@ python <SKILL_DIR>/scripts/install_hooks.py
 python <SKILL_DIR>/scripts/install_hooks.py --uninstall
 ```
 
-安装后重启 WorkBuddy，hooks 生效。
+安装后重启 Claude Code，hooks 生效。
 
 > **注意**：`desktop_pet.py` 必须传入 `--atlas` 参数才能运行，不要直接运行它。**始终使用 `pet_launch.py` 来启动或重启宠物。**
 
@@ -64,7 +64,7 @@ python <SKILL_DIR>/scripts/pet_launch.py
 
 ## Hooks 说明
 
-宠物通过 WorkBuddy hooks 实现状态同步。hooks 需要注册在 `~/.workbuddy/settings.json` 的 `hooks` 字段中：
+宠物通过 Claude Code hooks 实现状态同步。hooks 需要注册在 `~/.claude/settings.json` 的 `hooks` 字段中：
 
 | 事件 | 宠物状态 | 气泡文字 |
 |------|---------|---------|
@@ -76,14 +76,14 @@ python <SKILL_DIR>/scripts/pet_launch.py
 
 ## 聊天感知模式
 
-宠物通过轮询 `~/.workbuddy/pet_state.json`（每 500ms）读取状态：
+宠物通过轮询 `~/.claude/pet_state.json`（每 500ms）读取状态：
 
 - **Hooks 驱动**：hooks 调用 `pet_bridge.py` 更新状态 → daemon 写入 state 文件 → 宠物读取并切换动画
 - **手动控制**：`python <SKILL_DIR>/scripts/pet_bridge.py <状态> [消息]` 可随时手动设置
 - **状态持久**：各状态不会自动恢复，由下一个 hook 事件驱动切换
-- **OK 按钮**：完成时宠物下方出现 OK 按钮，点击可聚焦 WorkBuddy 窗口并回到待机
+- **OK 按钮**：完成时宠物下方出现 OK 按钮，点击可聚焦 Claude Code 窗口并回到待机
 - **提示音**：仅在进入 waving（完成）状态时播放系统提示音
-- **声音开关**：右键菜单可切换提示音开关，设置持久化到 `~/.workbuddy/pet_config.json`
+- **声音开关**：右键菜单可切换提示音开关，设置持久化到 `~/.claude/pet_config.json`
 
 ### 手动 bridge 用法
 ```bash

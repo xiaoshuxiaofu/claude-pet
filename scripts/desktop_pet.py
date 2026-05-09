@@ -4,7 +4,7 @@ desktop_pet.py - A tkinter-based desktop pet player for Codex-style sprite atlas
 Features:
 - Transparent, borderless window with sprite animation
 - Drag to move, right-click context menu, double-click state cycling
-- Chat-aware mode: polls state file to sync with WorkBuddy agent status
+- Chat-aware mode: polls state file to sync with Claude Code agent status
 - Pixel-art speech bubble and completion OK button
 - Sound toggle with persistent config
 - State persists until explicitly changed (no auto-revert)
@@ -434,7 +434,7 @@ class DesktopPet:
         return self.frame_h
 
     def _show_agree_button(self):
-        """Show '同意' button that focuses WorkBuddy for manual approval."""
+        """Show '同意' button that focuses Claude Code for manual approval."""
         self.ok_btn.config(text="同意", command=self._on_agree_click)
         self.ok_btn_frame.pack(fill="x", padx=4)
 
@@ -454,7 +454,7 @@ class DesktopPet:
         self._write_state_file("idle", "")
 
     def _on_agree_click(self):
-        """Agree button: focus WorkBuddy so user can manually approve."""
+        """Agree button: focus Claude Code so user can manually approve."""
         _focus_app_window()
         self.set_state("idle")
         self.bubble.hide()
@@ -846,7 +846,7 @@ class DesktopPet:
 # ── entry point ──
 
 def main():
-    parser = argparse.ArgumentParser(description="WorkBuddy Desktop Pet Player")
+    parser = argparse.ArgumentParser(description="Claude Code Desktop Pet Player")
     parser.add_argument("--atlas", required=True, help="Path to sprite atlas PNG")
     parser.add_argument("--manifest", default=None, help="Path to pet.json manifest")
     parser.add_argument("--scale", type=float, default=2.0, help="Display scale factor")

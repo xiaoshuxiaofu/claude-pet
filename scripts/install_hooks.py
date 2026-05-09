@@ -1,12 +1,12 @@
 """
-install_hooks.py - 将 pet hooks 注入到 ~/.workbuddy/settings.json。
+install_hooks.py - 将 pet hooks 注入到 ~/.claude/settings.json。
 
 读取同目录下 hooks.json 的配置，合并到 settings.json 的 "hooks" 字段中。
 幂等操作：重复运行不会产生重复条目。
 
 Usage:
     python install_hooks.py
-    python install_hooks.py --skill-dir /path/to/workbuddy-pet
+    python install_hooks.py --skill-dir /path/to/claude-pet
     python install_hooks.py --uninstall  # 移除 pet hooks
 """
 
@@ -113,7 +113,7 @@ def install(args):
         settings["hooks"] = settings_hooks
         save_json(SETTINGS_FILE, settings)
         print(f"[install] Hooks saved to {SETTINGS_FILE}")
-        print("[install] Please restart WorkBuddy or reload hooks for changes to take effect.")
+        print("[install] Please restart Claude Code or reload hooks for changes to take effect.")
     else:
         print("[install] All hooks already installed, no changes needed.")
 
@@ -128,7 +128,7 @@ def uninstall(args):
 
     for event_name in list(settings_hooks.keys()):
         entries = settings_hooks[event_name]
-        # Filter out entries that reference workbuddy-pet scripts
+        # Filter out entries that reference claude-pet scripts
         filtered = []
         for entry in entries:
             hooks_list = entry.get("hooks", [])
@@ -159,8 +159,8 @@ def uninstall(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Install/uninstall workbuddy-pet hooks")
-    parser.add_argument("--skill-dir", help="Path to workbuddy-pet skill directory")
+    parser = argparse.ArgumentParser(description="Install/uninstall claude-pet hooks")
+    parser.add_argument("--skill-dir", help="Path to claude-pet skill directory")
     parser.add_argument("--uninstall", action="store_true", help="Remove pet hooks from settings")
     args = parser.parse_args()
 

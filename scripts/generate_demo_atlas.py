@@ -1,5 +1,5 @@
 """
-generate_demo_atlas.py - Generate sprite atlases for WorkBuddy desktop pets.
+generate_demo_atlas.py - Generate sprite atlases for desktop pets.
 
 Creates pixel-art characters with 9 animation states, each with 8 frames.
 Supports multiple creature types via presets or custom color parameters.
@@ -319,7 +319,7 @@ def generate_atlas(output_dir: str, pet_name: str,
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate a WorkBuddy pet sprite atlas.")
+    parser = argparse.ArgumentParser(description="Generate a pet sprite atlas.")
     parser.add_argument("--output", required=True, help="Output directory for atlas and manifest.")
     parser.add_argument("--name", default="blue-slime", help="Base name for the pet (default: blue-slime).")
     parser.add_argument("--preset", choices=list(PRESETS.keys()),
