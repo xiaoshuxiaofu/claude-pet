@@ -1,6 +1,8 @@
 # Claude Pet — 桌面宠物
 
-Codex 兼容的动画桌面宠物，通过 Claude Code hooks 实时同步 AI 工作状态。
+![预览](预览.png)
+
+Claude Code 动画桌面宠物，通过 hooks 实时同步 AI 工作状态。
 
 ## 当前宠物
 
